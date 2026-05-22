@@ -7,9 +7,11 @@ find_package(PkgConfig REQUIRED)
 find_package(SDL2 REQUIRED)
 pkg_check_modules(PORTAUDIO REQUIRED portaudio-2.0)
 
-add_executable(synth main.cpp src/synth.cpp src/oscillator.cpp
-        headers/adsr.hpp
+add_executable(synth main.cpp
+        src/synth.cpp
+        src/oscillator.cpp
         src/adsr.cpp
+        src/app.cpp
 )
 target_include_directories(synth PRIVATE ${PORTAUDIO_INCLUDE_DIRS} ${SDL2_LIBRARIES})
 target_link_libraries(synth PRIVATE ${PORTAUDIO_LIBRARIES} ${SDL2_LIBRARIES})

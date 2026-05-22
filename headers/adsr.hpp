@@ -1,7 +1,6 @@
 #pragma once
 
-#include <algorithm>
-#include "config.hpp"
+#include "utils.hpp"
 
 enum class ADSRState {
     Idle = 0,       // do nothing (output is at zero)
@@ -10,19 +9,6 @@ enum class ADSRState {
     Sustain = 3,    // do nothing (output is at the sustain level)
     Release = 4,    // continue to reduce the output at release rate (at zero, change to idle)
 };
-
-// ~ the flow of the ADSR envelope ~
-
-// when a key is pressed, that's when a "gate" is opened - sets to an "on" state,
-// triggering the envelope into its initial attack state
-
-// once the attack state reaches its peak, it enters the decay state
-
-// once the decay state is reached, here we check whether the key is still pressed (gate is still opened)
-// if yes - we stay in the sustain state
-// if not - we enter the release state
-
-// keep decreasing the output until we reach the idle state
 
 class ADSR {
 private:

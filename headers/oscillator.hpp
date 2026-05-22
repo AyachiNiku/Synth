@@ -1,5 +1,5 @@
 #pragma once
-#include "config.hpp"
+#include "utils.hpp"
 
 enum class Waveform {
     Sine = 0,

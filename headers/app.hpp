@@ -1,30 +1,33 @@
 #pragma once
 
-#include <portaudio.h>
-#include <set>
-#include <unordered_map>
 #include <SDL2/SDL.h>
+#include <portaudio.h>
+
+#include <unordered_map>
+#include <vector>
+#include <algorithm>
 
 #include "synth.hpp"
+#include "utils.hpp"
 
 class App {
 public:
-    App();
+    App() = default;
     ~App();
-    int Run();
+    void Run();
 
 private:
     // Portaudio section
     int InitAudio();
-    void ShutdownAudio();
+    void ShutdownAudio() const;
     static int AudioCallback(const void*, void*, unsigned long,
                              const PaStreamCallbackTimeInfo*,
-                             PaStreamCallbackFlags, void*);
+                             PaStreamCallbackFlags, void* synthData);
     PaStream* _stream = nullptr;
 
     // SDL section
-    void InitSDL();
-    void ShutdownSDL();
+    int InitSDL();
+    void ShutdownSDL() const;
     void HandleKeyDown(SDL_Keycode key);
     void HandleKeyUp(SDL_Keycode key);
     SDL_Window* _window = nullptr;
@@ -33,7 +36,11 @@ private:
     Synth _synth;
 
     // Key state section
-    std::set<SDL_Keycode> _heldKeys;
-    std::unordered_map<SDL_Keycode, int> _keyNoteMap;
+    std::vector<int> _heldNotes;
+    std::unordered_map<SDL_Keycode, NoteId> _keyNoteMap;
     int _octave = 0;
+
+    NoteId ToNoteId(SDL_Keycode key) {
+        return _keyNoteMap[key] + (_octave * 12);
+    }
 };

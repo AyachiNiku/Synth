@@ -4,7 +4,6 @@
 
 #include "adsr.hpp"
 #include "oscillator.hpp"
-#include "config.hpp"
 
 constexpr float DEFAULT_FREQUENCY = 440.0f;
 constexpr float DEFAULT_PHASE = 0.0f;
