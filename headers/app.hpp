@@ -36,10 +36,11 @@ private:
     Synth _synth;
 
     // Key state section
-    std::vector<int> _heldNotes;
-    std::unordered_map<SDL_Keycode, NoteId> _keyNoteMap;
+    std::vector<int> _heldNotes;    // currently held notes on the keyboard
+    std::unordered_map<SDL_Keycode, NoteId> _keyNoteMap;    // a dictionary of all keys on the keyboard that get mapped to midi notes
     int _octave = 0;
 
+    // finds the note to the corresponding key pressed and returns its midi id (also based on the currently chosen octave)
     NoteId ToNoteId(SDL_Keycode key) {
         return _keyNoteMap[key] + (_octave * 12);
     }

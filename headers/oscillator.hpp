@@ -1,12 +1,6 @@
 #pragma once
 #include "utils.hpp"
-
-enum class Waveform {
-    Sine = 0,
-    Square = 1,
-    Triangle = 2,
-    Sawtooth = 3,
-};
+#include "waveform.hpp"
 
 class Oscillator {
 private:
@@ -22,6 +16,7 @@ public:
     void SetActive(bool active) { this->_active = active; }
     void SetFrequency(float freq) { this->_frequency = freq; }
     void SetWaveform(Waveform waveform) { this->_waveform = waveform; }
+    void CycleWaveform(bool right);
 
     Oscillator() : _waveform{Waveform::Sine}, _phase{0.0f}, _frequency{440.0f}, _active{true} {}
     Oscillator(float frequency, bool active = true) : _waveform{Waveform::Sine}, _phase{0.0f}, _frequency{frequency}, _active{active} {}

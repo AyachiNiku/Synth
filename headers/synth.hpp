@@ -5,12 +5,9 @@
 #include "adsr.hpp"
 #include "oscillator.hpp"
 
-constexpr float DEFAULT_FREQUENCY = 440.0f;
-constexpr float DEFAULT_PHASE = 0.0f;
-
 class Synth {
 private:
-    float _frequency = DEFAULT_FREQUENCY;
+    float _frequency = 440.0f;
     int _octave = 1;
 
     std::array<Oscillator, 3> _oscillators = {
@@ -24,6 +21,7 @@ public:
     void Run(float* output, unsigned long sampleRate);
 
     void SetFrequency(float frequency);
+    void CycleWaveform(bool right);
 
     Synth() = default;
 };

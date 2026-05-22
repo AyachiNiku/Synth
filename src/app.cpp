@@ -92,7 +92,6 @@ int App::InitSDL() {
         SDL_WINDOW_SHOWN
     );
 
-
     _keyNoteMap = {
         {SDLK_a, C4},
         {SDLK_w, Cs4},
@@ -107,7 +106,9 @@ int App::InitSDL() {
         {SDLK_u, As4},
         {SDLK_j, B4},
         {SDLK_k, C5},
-        {SDLK_l, Cs5},
+        {SDLK_o, Cs5},
+        {SDLK_l, D5},
+        {SDLK_p, Ds5}
     };
 
     _octave = 0;
@@ -127,19 +128,28 @@ void App::HandleKeyDown(SDL_Keycode key) {
     if (key == SDLK_y) _octave--;
     if (key == SDLK_x) _octave++;
 
-    NoteId note = ToNoteId(key);
-    _heldNotes.push_back(note);
-    _synth.SetFrequency(midiToFrequency(note));
-    _synth.Adsr.NoteOn();
+    // waveform handler
+    if (key == SDLK_LEFT || key == SDLK_RIGHT) {
+        _synth.CycleWaveform((key == SDLK_RIGHT));
+    }
+
+    if (_keyNoteMap.contains(key)) {
+        NoteId note = ToNoteId(key);
+        _heldNotes.push_back(note);
+        _synth.SetFrequency(midiToFrequency(note));
+        _synth.Adsr.NoteOn();
+    }
 }
 
 void App::HandleKeyUp(SDL_Keycode key) {
-    _heldNotes.erase(std::ranges::remove(_heldNotes, ToNoteId(key)).begin());
+    if (_keyNoteMap.contains(key)) {
+        _heldNotes.erase(std::ranges::remove(_heldNotes, ToNoteId(key)).begin());
 
-    if (!_heldNotes.empty()) {
-        _synth.SetFrequency(midiToFrequency(_heldNotes.back()));
-    }
-    else {
-        _synth.Adsr.NoteOff();
+        if (!_heldNotes.empty()) {
+            _synth.SetFrequency(midiToFrequency(_heldNotes.back()));
+        }
+        else {
+            _synth.Adsr.NoteOff();
+        }
     }
 }

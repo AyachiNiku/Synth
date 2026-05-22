@@ -1,6 +1,19 @@
 #include <cmath>
 #include "../headers/oscillator.hpp"
 
+void Oscillator::CycleWaveform(bool right) {
+    auto current = static_cast<int>(_waveform);
+
+    if (right) {
+        current = (current == 3) ? 0 : current + 1;
+    }
+    else {
+        current = (current == 0) ? 3 : current - 1;
+    }
+
+    _waveform = static_cast<Waveform>(current);
+}
+
 float Oscillator::Process() {
     float sample = 0.0f;
 

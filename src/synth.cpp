@@ -1,5 +1,11 @@
 #include "../headers/synth.hpp"
 
+void Synth::CycleWaveform(bool right) {
+    for (int i = 0; i < 3; i++) {
+        _oscillators[i].CycleWaveform(right);
+    }
+}
+
 void Synth::SetFrequency(float frequency) {
     _oscillators[0].SetFrequency(frequency);
     _oscillators[1].SetFrequency(frequency);

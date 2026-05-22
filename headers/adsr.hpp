@@ -13,7 +13,7 @@ enum class ADSRState {
 class ADSR {
 private:
     ADSRState _state = ADSRState::Idle;
-    float _amplitude = 0.0f;    // between 0.0f and 1.0f
+    float _amplitude = 0.0f;    // between 0.0f and 1.0f, this determines how "strong" (loud) the signal is
 
     // variables which dictate how much/quick the output is increased/decreased,
     // or at which level they stay
@@ -25,9 +25,13 @@ private:
 public:
     float Process();
 
+    // a note has been pressed, we enter the attack state
     void NoteOn() { _state = ADSRState::Attack; }
+
+    // not a single note is pressed at this point in time, we enter the release state
     void NoteOff() { _state = ADSRState::Release; }
 
+    // setters
     void SetAttackTime(float rate);
     void SetDecayTime(float rate);
     void SetSustainLevel(float level);
