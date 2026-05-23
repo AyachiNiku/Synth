@@ -12,6 +12,15 @@ void Synth::SetFrequency(float frequency) {
     _oscillators[2].SetFrequency(frequency);
 }
 
+void Synth::NoteOn(int note, float velocity) {
+    SetFrequency(midiToFrequency(note));
+    Adsr.NoteOn();
+}
+
+void Synth::NoteOff(int note) {
+    Adsr.NoteOff();
+}
+
 void Synth::Run(float* output, unsigned long sampleRate) {
     // for sample in sampleRate,
     for (unsigned long i = 0; i < sampleRate; i++) {

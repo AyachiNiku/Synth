@@ -1,11 +1,14 @@
 #pragma once
 
-#include <SDL2/SDL.h>
 #include <portaudio.h>
+#include <libremidi/libremidi.hpp>
+#include <SDL2/SDL.h>
 
+#include <algorithm>
 #include <unordered_map>
 #include <vector>
-#include <algorithm>
+#include <mutex>
+#include <queue>
 
 #include "synth.hpp"
 #include "utils.hpp"
@@ -44,4 +47,6 @@ private:
     NoteId ToNoteId(SDL_Keycode key) {
         return _keyNoteMap[key] + (_octave * 12);
     }
+
+    std::mutex _synthMutex;
 };

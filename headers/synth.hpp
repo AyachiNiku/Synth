@@ -16,12 +16,16 @@ private:
         Oscillator(0.0f, false)
     };
 
-public:
     ADSR Adsr;
+
+public:
     void Run(float* output, unsigned long sampleRate);
 
     void SetFrequency(float frequency);
     void CycleWaveform(bool right);
+
+    void NoteOn(int note, float velocity = 1.0f);
+    void NoteOff(int note);
 
     Synth() = default;
 };
