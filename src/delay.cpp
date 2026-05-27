@@ -1,15 +1,11 @@
 #include "../headers/delay.hpp"
 
-bool Delay::IsActive() const {
-    return _active;
-}
-
 void Delay::Deactivate() {
-    _active = false;
+    _isActive = false;
 }
 
 void Delay::Activate() {
-    _active = true;
+    _isActive = true;
 }
 
 Delay::Delay(float delaySeconds) {
@@ -20,6 +16,8 @@ Delay::Delay(float delaySeconds) {
 }
 
 float Delay::Process(float input) {
+    if (!_isActive) return input;
+
     // read the delayed sample
     float delayed = _buffer[_readPos];
 

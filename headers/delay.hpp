@@ -6,10 +6,7 @@
 
 class Delay {
 public:
-    bool IsActive() const;
-
     void Deactivate();
-
     void Activate();
 
     Delay(float delaySeconds = 0.5f);
@@ -23,5 +20,5 @@ private:
     float _feedback = 0.5f; // how much the echo repeats
     float _mix = 0.33f;      // dry/wet balance
 
-    bool _active = true;
+    bool _isActive = true;
 };

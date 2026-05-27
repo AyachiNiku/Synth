@@ -6,22 +6,6 @@
 #include "oscillator.hpp"
 
 class Voice {
-private:
-    std::array<Oscillator, 3> _oscillators = {
-        Oscillator(),
-        Oscillator(),
-        Oscillator()
-    };
-
-    ADSR _adsr;
-
-    Note::Id _note = -1;
-    float _velocity = 1.0f;
-
-    bool _isNoteOn = false; // is a note still being pressed?
-    bool _isActive = false; // is sound still playing?
-    bool _isDisabled = false; // can this voice even generate any sound right now?
-
 public:
     Voice() = default;
 
@@ -38,4 +22,20 @@ public:
     bool IsActive() const;
     bool IsDisabled() const;
     Note::Id GetNote() const;
+
+private:
+    std::array<Oscillator, 3> _oscillators = {
+        Oscillator(),
+        Oscillator(),
+        Oscillator()
+    };
+
+    ADSR _adsr;
+
+    Note::Id _note = -1;
+    float _velocity = 1.0f;
+
+    bool _isNoteOn = false; // is a note still being pressed?
+    bool _isActive = false; // is sound still playing?
+    bool _isDisabled = false; // can this voice even generate any sound right now?
 };

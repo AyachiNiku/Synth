@@ -62,6 +62,7 @@ void Synth::Run(float* output, unsigned long sampleRate) {
         }
 
         sample = _delay.Process(sample);
+        sample = _filter.Process(sample);
 
         output[i * 2] = sample; // left
         output[i * 2 + 1] = sample; // right

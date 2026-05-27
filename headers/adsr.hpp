@@ -11,17 +11,6 @@ enum class ADSRState {
 };
 
 class ADSR {
-private:
-    ADSRState _state = ADSRState::Idle;
-    float _amplitude = 0.0f;    // between 0.0f and 1.0f, this determines how "strong" (loud) the signal is
-
-    // variables which dictate how much/quick the output is increased/decreased,
-    // or at which level they stay
-    float _attackTime = 0.05f;
-    float _decayTime = 0.3f;
-    float _sustainLevel = 0.8f;
-    float _releaseTime = 0.1f;
-
 public:
     ADSR() = default;
 
@@ -38,4 +27,15 @@ public:
 
     // getters
     ADSRState GetState();
+
+private:
+    ADSRState _state = ADSRState::Idle;
+    float _amplitude = 0.0f;    // between 0.0f and 1.0f, this determines how "strong" (loud) the signal is
+
+    // variables which dictate how much/quick the output is increased/decreased,
+    // or at which level they stay
+    float _attackTime = 0.05f;
+    float _decayTime = 0.3f;
+    float _sustainLevel = 0.8f;
+    float _releaseTime = 0.1f;
 };

@@ -2,9 +2,10 @@
 
 #include <cmath>
 
+constexpr float SAMPLE_RATE = 44100.0f;
+
 // used to represent the notes that are being played
 // for convenience, I represent them like so - each note directly equals its midi numbered counterpart
-
 namespace Note {
     using Id = int;
 
@@ -31,5 +32,3 @@ namespace Note {
     }
 
 }
-
-constexpr float SAMPLE_RATE = 44100.0f;

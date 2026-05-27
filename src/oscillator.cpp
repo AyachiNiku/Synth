@@ -46,11 +46,11 @@ float Oscillator::Process() {
 }
 
 bool Oscillator::IsActive() const {
-    return _active;
+    return _isActive;
 }
 
 void Oscillator::SetActive(bool active) {
-    _active = active;
+    _isActive = active;
 }
 
 void Oscillator::SetFrequency(float freq) {

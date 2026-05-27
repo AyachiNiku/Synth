@@ -16,6 +16,7 @@ add_executable(synth main.cpp
         src/app.cpp
         src/voice.cpp
         src/delay.cpp
+        src/filter.cpp
 )
 target_include_directories(synth PRIVATE ${PORTAUDIO_INCLUDE_DIRS} ${SDL2_INCLUDE_DIRS})
 target_link_libraries(synth PRIVATE ${PORTAUDIO_LIBRARIES} ${SDL2_LIBRARIES} libremidi)
