@@ -2,30 +2,25 @@
 
 #include <array>
 
+#include "voice.hpp"
 #include "adsr.hpp"
 #include "oscillator.hpp"
+#include "delay.hpp"
 
 class Synth {
 private:
-    float _frequency = 440.0f;
-    int _octave = 1;
-
-    std::array<Oscillator, 3> _oscillators = {
-        Oscillator(440.0f, Waveform::Square),
-        Oscillator(880.0f),
-        Oscillator(0.0f, false)
-    };
-
-    ADSR Adsr;
+    std::array<Voice, 8> _voices;
+    size_t _disabledVoices = 0;
+    size_t _currentVoice = 0;
+    Delay _delay;
 
 public:
     void Run(float* output, unsigned long sampleRate);
-
-    void SetFrequency(float frequency);
     void CycleWaveform(bool right);
-
-    void NoteOn(int note, float velocity = 1.0f);
-    void NoteOff(int note);
+    void CycleWaveform(int oscillatorId, bool right);
+    void NoteOn(Note::Id note, float velocity = 127.0f);
+    void NoteOff(Note::Id note);
+    void AdjustVoiceAmount(bool down);
 
     Synth() = default;
 };

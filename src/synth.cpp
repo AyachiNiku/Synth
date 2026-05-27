@@ -1,31 +1,89 @@
 #include "../headers/synth.hpp"
 
 void Synth::CycleWaveform(bool right) {
-    for (int i = 0; i < 3; i++) {
-        _oscillators[i].CycleWaveform(right);
+    for (auto& voice : _voices) {
+        voice.CycleWaveform(right);
     }
 }
 
-void Synth::SetFrequency(float frequency) {
-    _oscillators[0].SetFrequency(frequency);
-    _oscillators[1].SetFrequency(frequency);
-    _oscillators[2].SetFrequency(frequency);
+// get the chosen oscillator out of the three from the GUI and only change its waveform, not all three
+void Synth::CycleWaveform(int oscillatorId, bool right) {
+    for (auto& voice : _voices) {
+        voice.CycleWaveform(oscillatorId, right);
+    }
 }
 
-void Synth::NoteOn(int note, float velocity) {
-    SetFrequency(midiToFrequency(note));
-    Adsr.NoteOn();
+// round-robin allocation
+void Synth::NoteOn(Note::Id note, float velocity) {
+    // if this note is already playing, just retrigger it
+    for (auto& voice : _voices) {
+        if (voice.IsActive() && voice.GetNote() == note) {
+            voice.NoteOn(note, velocity);
+            return;
+        }
+    }
+
+    // find next voice using round-robin
+   while (true) {
+       if (!_voices[_currentVoice].IsDisabled()) {
+           _voices[_currentVoice].NoteOn(note, velocity);
+           _currentVoice = (_currentVoice + 1) % _voices.size();
+           break;
+       }
+       _currentVoice = (_currentVoice + 1) % _voices.size();
+   }
 }
 
-void Synth::NoteOff(int note) {
-    Adsr.NoteOff();
+void Synth::NoteOff(Note::Id note) {
+    for (auto& voice : _voices) {
+        if (voice.IsNoteOn() && voice.GetNote() == note) {
+            voice.NoteOff(note);
+            return;
+        }
+    }
 }
 
 void Synth::Run(float* output, unsigned long sampleRate) {
-    // for sample in sampleRate,
+    // for each sample in sampleRate,
     for (unsigned long i = 0; i < sampleRate; i++) {
-        float sample = _oscillators[0].Process() * Adsr.Process();
+        float sample = 0.0f;
+        int activeCount = 0;
+
+        for (auto& voice : _voices) {
+            if (!voice.IsDisabled() && voice.IsActive()) {
+                sample += voice.Process();
+                activeCount++;
+            }
+        }
+
+        size_t enabledVoices = _voices.size() - _disabledVoices;
+        if (activeCount != 0) {
+            sample /= static_cast<float>(enabledVoices);
+        }
+
+        sample = _delay.Process(sample);
+
         output[i * 2] = sample; // left
         output[i * 2 + 1] = sample; // right
+    }
+}
+
+void Synth::AdjustVoiceAmount(bool down) {
+    if (down && _disabledVoices < 7) { // max 7, always keep at least 1
+        for (auto& voice : _voices) {
+            if (!voice.IsNoteOn() && !voice.IsDisabled()) {
+                voice.Disable();
+                _disabledVoices++;
+                break;
+            }
+        }
+    } else if (!down && _disabledVoices > 0) {
+        for (auto& voice : _voices) {
+            if (voice.IsDisabled()) {
+                voice.Enable();
+                _disabledVoices--;
+                break;
+            }
+        }
     }
 }

@@ -1,6 +1,8 @@
 #include <cmath>
 #include "../headers/oscillator.hpp"
 
+#include <iostream>
+
 void Oscillator::CycleWaveform(bool right) {
     auto current = static_cast<int>(_waveform);
 
@@ -41,4 +43,20 @@ float Oscillator::Process() {
     if (_phase >= 1.0f) _phase -= 1.0f;
 
     return sample;
+}
+
+bool Oscillator::IsActive() const {
+    return _active;
+}
+
+void Oscillator::SetActive(bool active) {
+    _active = active;
+}
+
+void Oscillator::SetFrequency(float freq) {
+    _frequency = freq;
+}
+
+void Oscillator::SetWaveform(Waveform waveform) {
+    _waveform = waveform;
 }

@@ -2,6 +2,9 @@
 #include <iostream>
 
 // App section itself
+Note::Id App::ToNoteId(SDL_Keycode key) {
+    return _keyNoteMap[key] + (_octave * 12);
+}
 
 App::~App() {
     App::ShutdownAudio();
@@ -21,15 +24,15 @@ void App::Run() {
     // MIDI section
 
     // lists MIDI ports - discovery, nothing is being opened yet
-    libremidi::observer obs;
-    auto input_ports = obs.get_input_ports();
+    libremidi::observer _midiObserver;
+    auto inputPorts = _midiObserver.get_input_ports();
 
-    if(input_ports.empty()) {
-        std::cout << "No MIDI input devices found.\n";
+    if (inputPorts.empty()) {
+        std::cout << "[MIDI] No input devices found.\n";
     } else {
-        std::cout << "Available MIDI input ports:\n";
+        std::cout << "[MIDI] Available input ports:\n";
         int idx = 0;
-        for(const auto& port : input_ports) {
+        for (const auto& port : inputPorts) {
             std::cout << "  [" << idx++ << "] " << port.port_name << std::endl;
         }
     }
@@ -41,42 +44,41 @@ void App::Run() {
         // msg.bytes[0] - status (type of message) and the channel packed together
         // msg.bytes[1] - note number (0-127)
         // msg.bytes[2] - velocity (0-127)
-    auto midi_callback = [this](const libremidi::message& msg)
+    auto midiCallback = [this](const libremidi::message& msg)
     {
         // MIDI message data is in msg.bytes
-        if(msg.size() < 3) return; // ignore non-note messages
+        if (msg.size() < 3) return; // ignore non-note messages
 
         auto status = msg.bytes[0] & 0xf0;  // extracts the top 4 bits (status)
-        auto channel = msg.bytes[0] & 0x0f; // extracts the bottom 4 bits (channel)
+        // channel could be extracted from the bottom 4 bits, unused
         auto note = msg.bytes[1];
         auto velocity = msg.bytes[2];
 
-        if(status == 0x90 && velocity > 0) { // Note On
-            std::cout << "[MIDI] Note ON: " << static_cast<int>(note) << ", vel: " << static_cast<int>(velocity) << std::endl;
-            std::lock_guard<std::mutex> lock(_synthMutex);
+        if (status == 0x90 && velocity > 0) { // Note On
+            std::lock_guard lock(_synthMutex);
             this->_synth.NoteOn(note, velocity);
         }
-        else if((status == 0x80) || (status == 0x90 && velocity == 0)) { // Note Off
-            std::cout << "[MIDI] Note OFF: " << static_cast<int>(note) << std::endl;
-            std::lock_guard<std::mutex> lock(_synthMutex);
+        else if ((status == 0x80) || (status == 0x90 && velocity == 0)) { // Note Off
+            std::lock_guard lock(_synthMutex);
             this->_synth.NoteOff(note);
         }
     };
 
     libremidi::input_configuration config;
-    config.on_message = midi_callback;
+    config.on_message = midiCallback;
 
-    libremidi::midi_in midi_in{config};
+    libremidi::midi_in midiIn{config};
 
     // open the first available device
-    if (!input_ports.empty()) {
-        midi_in.open_port(input_ports[0]);
-        std::cout << "Opened MIDI input: " << input_ports[0].port_name << std::endl;
+    if (!inputPorts.empty()) {
+        midiIn.open_port(inputPorts[0]);
+        std::cout << "[MIDI] Opened input: " << inputPorts[0].port_name << std::endl;
     }
 
     while (running) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
+                std::cout << "[KEY] Quitting the app." << std::endl;
                 running = false;
             }
             if (event.type == SDL_KEYDOWN && !event.key.repeat) {
@@ -95,14 +97,14 @@ void App::Run() {
 
 int App::InitAudio() {
     if (Pa_Initialize() != paNoError) {
-        printf("PortAudio initialisation failed\n");
+        printf("[PortAudio] Initialisation failed\n");
         return 1;
     }
 
     Pa_OpenDefaultStream (
     &_stream,
     0,  // no input
-        2,  // stereo output
+    2,  // stereo output
     paFloat32,  // 32 bit floating point output, I believe ints work as well but this is just better
     44100,   // sample rate
     256,    // frames per buffer - number of frames that portaudio will request from a callback.
@@ -124,9 +126,7 @@ int App::AudioCallback (
     void* synthData) {
 
     auto* synth = static_cast<Synth*>(synthData);
-
     synth->Run(static_cast<float*>(output), frameCount);
-
     return paContinue;
 }
 
@@ -140,7 +140,7 @@ void App::ShutdownAudio() const {
 
 int App::InitSDL() {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        printf("SDL initialisation failed: %s\n", SDL_GetError());
+        printf("[SDL] Initialisation failed: %s\n", SDL_GetError());
         return 1;
     }
 
@@ -151,6 +151,7 @@ int App::InitSDL() {
         SDL_WINDOW_SHOWN
     );
 
+    using namespace Note;
     _keyNoteMap = {
         {SDLK_a, C4},
         {SDLK_w, Cs4},
@@ -191,27 +192,19 @@ void App::HandleKeyDown(SDL_Keycode key) {
     if (key == SDLK_LEFT || key == SDLK_RIGHT) {
         _synth.CycleWaveform((key == SDLK_RIGHT));
     }
+    if (key == SDLK_UP || key == SDLK_DOWN) {
+        _synth.AdjustVoiceAmount(key == SDLK_DOWN);
+    }
 
     if (!_keyNoteMap.contains(key)) return;
-
-    NoteId note = ToNoteId(key);
-    _heldNotes.push_back(note);
-    std::lock_guard<std::mutex> lock(_synthMutex);
-    _synth.NoteOn(note);
+    
+    std::lock_guard lock(_synthMutex);
+    _synth.NoteOn(ToNoteId(key));
 }
 
 void App::HandleKeyUp(SDL_Keycode key) {
     if (!_keyNoteMap.contains(key)) return;
 
-    NoteId note = ToNoteId(key);
-
-    _heldNotes.erase(std::ranges::remove(_heldNotes, note).begin());
-
-    std::lock_guard<std::mutex> lock(_synthMutex);
-    if (!_heldNotes.empty()) {
-        _synth.NoteOn(_heldNotes.back());
-    }
-    else {
-        _synth.NoteOff(note);
-    }
+    std::lock_guard lock(_synthMutex);
+    _synth.NoteOff(ToNoteId(key));
 }

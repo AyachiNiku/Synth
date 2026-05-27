@@ -17,23 +17,25 @@ private:
 
     // variables which dictate how much/quick the output is increased/decreased,
     // or at which level they stay
-    float _attackTime = 0.1f;
+    float _attackTime = 0.05f;
     float _decayTime = 0.3f;
     float _sustainLevel = 0.8f;
-    float _releaseTime = 0.5f;
+    float _releaseTime = 0.1f;
 
 public:
+    ADSR() = default;
+
     float Process();
 
-    // a note has been pressed, we enter the attack state
-    void NoteOn() { _state = ADSRState::Attack; }
-
-    // not a single note is pressed at this point in time, we enter the release state
-    void NoteOff() { _state = ADSRState::Release; }
+    void NoteOn(); // a note has been pressed, we enter the attack state
+    void NoteOff(); // not a single note is pressed at this point in time, we enter the release state
 
     // setters
     void SetAttackTime(float rate);
     void SetDecayTime(float rate);
     void SetSustainLevel(float level);
     void SetReleaseTime(float rate);
+
+    // getters
+    ADSRState GetState();
 };

@@ -23,9 +23,7 @@ private:
     // Portaudio section
     int InitAudio();
     void ShutdownAudio() const;
-    static int AudioCallback(const void*, void*, unsigned long,
-                             const PaStreamCallbackTimeInfo*,
-                             PaStreamCallbackFlags, void* synthData);
+    static int AudioCallback(const void*, void*, unsigned long, const PaStreamCallbackTimeInfo*, PaStreamCallbackFlags, void* synthData);
     PaStream* _stream = nullptr;
 
     // SDL section
@@ -38,15 +36,9 @@ private:
     // Synth section
     Synth _synth;
 
-    // Key state section
-    std::vector<int> _heldNotes;    // currently held notes on the keyboard
-    std::unordered_map<SDL_Keycode, NoteId> _keyNoteMap;    // a dictionary of all keys on the keyboard that get mapped to midi notes
+    std::unordered_map<SDL_Keycode, Note::Id> _keyNoteMap; // a dictionary of all keys on the keyboard that get mapped to midi notes
+    std::mutex _synthMutex; // for locking the thread
     int _octave = 0;
 
-    // finds the note to the corresponding key pressed and returns its midi id (also based on the currently chosen octave)
-    NoteId ToNoteId(SDL_Keycode key) {
-        return _keyNoteMap[key] + (_octave * 12);
-    }
-
-    std::mutex _synthMutex;
+    Note::Id ToNoteId(SDL_Keycode key); // finds the note to the corresponding key pressed and also based on the currently chosen octave
 };

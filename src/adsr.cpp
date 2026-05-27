@@ -18,14 +18,6 @@ void ADSR::SetSustainLevel(float level) {
     _sustainLevel = level;
 }
 
-/**
- * for later: if I consider using exponential curves instead of
- * linear lines for transitions of these, this is where target ratios step in
- * instead of amplitude += amount, I'd use something like:
- * amplitude += coef * amplitude + base,
- * and the target ratio would control how close the curve gets to its target
- */
-
 // the concept of time and rate (like attackTime/attackRate, decayTime/decayRate, etc.) might seem pretty difficult to grasp,
 // the easiest way is to realize that multiplying any time variable by the sample rate gives us the actual time in seconds
 // so _attackRate = 0.1f - this gives us 0.1 seconds when multiplied by the current sample rate
@@ -42,7 +34,7 @@ float ADSR::Process() {
             break;
         // the peak of the amplitude has been reaches, and we switch to the decay state:
         case ADSRState::Decay:
-            _amplitude -= (1.0f - _sustainLevel) / (_decayTime * SAMPLE_RATE);
+            _amplitude -= (1.0f - _sustainLevel + 0.001f) / (_decayTime * SAMPLE_RATE);
             if (_amplitude <= _sustainLevel) {
                 _amplitude = _sustainLevel;
                 _state = ADSRState::Sustain;
@@ -54,7 +46,7 @@ float ADSR::Process() {
         // no keys are being held, and we have entered the release state:
         case ADSRState::Release:
             _amplitude -= _amplitude / (_releaseTime * SAMPLE_RATE);
-            if (_amplitude <= 0.0f) {
+            if (_amplitude <= 0.01f) {
                 _amplitude = 0.0f;
                 _state = ADSRState::Idle;
             }
@@ -64,4 +56,16 @@ float ADSR::Process() {
             break;
     }
     return _amplitude;
+}
+
+ADSRState ADSR::GetState() {
+    return _state;
+}
+
+void ADSR::NoteOn() {
+    _state = ADSRState::Attack;
+}
+
+void ADSR::NoteOff() {
+    _state = ADSRState::Release;
 }

@@ -2,7 +2,7 @@
 
 enum class Waveform {
     Sine = 0,
-    Square = 1,
-    Triangle = 2,
-    Sawtooth = 3,
+    Triangle = 1,
+    Sawtooth = 2,
+    Square = 3,
 };
