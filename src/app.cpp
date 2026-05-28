@@ -188,6 +188,11 @@ void App::HandleKeyDown(SDL_Keycode key) {
     if (key == SDLK_y) _octave--;
     if (key == SDLK_x) _octave++;
 
+    // filter handler
+    if (key == SDLK_1 || key == SDLK_2) {
+        _synth.CycleFilter((key == SDLK_2));
+    }
+
     // waveform handler
     if (key == SDLK_LEFT || key == SDLK_RIGHT) {
         _synth.CycleWaveform((key == SDLK_RIGHT));

@@ -8,6 +8,10 @@ void Delay::Activate() {
     _isActive = true;
 }
 
+bool Delay::IsActive() const {
+    return _isActive;
+}
+
 Delay::Delay(float delaySeconds) {
     int delaySamples = static_cast<int>(delaySeconds * SAMPLE_RATE);
     _buffer.resize(delaySamples, 0.0f);

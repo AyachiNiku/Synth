@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <memory>
 
 #include "voice.hpp"
 #include "adsr.hpp"
@@ -16,13 +17,19 @@ public:
     void NoteOn(Note::Id note, float velocity = 127.0f);
     void NoteOff(Note::Id note);
     void AdjustVoiceAmount(bool down);
+    void CycleFilter(bool right);
 
-    Synth() = default;
+    Synth() {
+        _filters.push_back(std::make_unique<LowPassFilter>());
+        _filters.push_back(std::make_unique<HighPassFilter>());
+        _filters.push_back(std::make_unique<BandPassFilter>());
+    }
 
 private:
     std::array<Voice, 8> _voices;
     size_t _disabledVoices = 0;
     size_t _currentVoice = 0;
     Delay _delay;
-    Filter _filter;
+    std::vector<std::unique_ptr<Filter>> _filters;
+    size_t _currentFilter = 0;
 };

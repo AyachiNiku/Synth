@@ -4,20 +4,18 @@
 
 // source: https://www.w3.org/TR/audio-eq-cookbook/
 // specifically check the "Direct Form 1" section:
-    // y[n] = b0*x[n] + b1*x[n-1] + b2*x[n-2] - a1*y[n-1] - a2*y[n-2]
+// y[n] = b0*x[n] + b1*x[n-1] + b2*x[n-2] - a1*y[n-1] - a2*y[n-2]
 // and "LPF" (Los-Pass Filter) section, where the desired coefficients are defined:
-    // b0 = (1 - cos(w0)) / 2
-    // b1 =  1 - cos(w0)
-    // b2 = (1 - cos(w0)) / 2
-    // a0 =  1 + alpha
-    // a1 = -2 * cos(w0)
-    // a2 =  1 - alpha
-    //
-    // where:
-    // w0 = 2 * PI * cutoff / sampleRate (where sampleRate
-    // alpha = sin(w0) / (2 * Q)
-
-
+// b0 = (1 - cos(w0)) / 2
+// b1 =  1 - cos(w0)
+// b2 = (1 - cos(w0)) / 2
+// a0 =  1 + alpha
+// a1 = -2 * cos(w0)
+// a2 =  1 - alpha
+//
+// where:
+// w0 = 2 * PI * cutoff / sampleRate (where sampleRate
+// alpha = sin(w0) / (2 * Q)
 
 // THIS IS ME RANTING ABOUT SOME THINGS I WAS INTERESTED IN THE EQUATION;
 // IT'S PRETTY INTERESTING WHAT'S GOING ON IN THERE
@@ -48,28 +46,74 @@
 
 // OKAY RANT OVER
 
+struct Coefficients {
+    float b0 = 0.0f;
+    float b1 = 0.0f;
+    float b2 = 0.0f;
+    float a1 = 0.0f;
+    float a2 = 0.0f;
+};
+
 class Filter {
 public:
-    Filter(); // default set
+    Filter() = default;
+    virtual ~Filter() = default;
 
-    float Process(float input);
-    void SetCutoff(float cutoffHz);
-    void SetQ(float q);
-    void Disable();
+    virtual float Process(float input);
+
+    virtual void SetCutoff(float cutoffHz) = 0;
+    virtual void SetQ(float q) = 0;
+
+    float GetCutoff() const;
+    float GetQ() const;
+    bool IsActive() const;
+
     void Enable();
+    void Disable();
+    void SwitchState();
 
-private:
+protected:
+    virtual void CalculateCoefficients() = 0;
+    float BiquadProcess(float input);
+
+    float _cutoff = 500.0f;
+    float _q = 0.707f;
+    float _x1 = 0.0f, _x2 = 0.0f;
+    float _y1 = 0.0f, _y2 = 0.0f;
+    Coefficients _coefficients;
+
     bool _isActive = true;
-    void CalculateCoefficients();
+};
 
-    float _cutoff = 8000.0f;
-    float _q = 1.2f;
+class LowPassFilter : public Filter {
+public:
+    LowPassFilter() { SetCutoff(5000.0f); }
 
-    // coefficients
-    float _b0 = 1.0f, _b1 = 0.0f, _b2 = 0.0f;
-    float _a1 = 0.0f, _a2 = 0.0f;
+    void SetCutoff(float cutoffHz) override;
+    void SetQ(float q) override;
 
-    // sample history
-    float _x1 = 0.0f, _x2 = 0.0f; // previous inputs
-    float _y1 = 0.0f, _y2 = 0.0f; // previous outputs
+protected:
+    void CalculateCoefficients() override;
+};
+
+class HighPassFilter : public Filter {
+public:
+    HighPassFilter() { SetCutoff(2500.0f); }
+
+    void SetCutoff(float cutoffHz) override;
+    void SetQ(float q) override;
+
+protected:
+    void CalculateCoefficients() override;
+};
+
+class BandPassFilter : public Filter {
+public:
+    BandPassFilter() { SetCutoff(2500.0f); }
+
+    void SetCutoff(float cutoffHz) override;
+    void SetQ(float q) override;
+
+protected:
+    void CalculateCoefficients() override;
 };

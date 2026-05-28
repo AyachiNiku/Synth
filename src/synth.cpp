@@ -1,5 +1,7 @@
 #include "../headers/synth.hpp"
 
+#include <iostream>
+
 void Synth::CycleWaveform(bool right) {
     for (auto& voice : _voices) {
         voice.CycleWaveform(right);
@@ -61,8 +63,11 @@ void Synth::Run(float* output, unsigned long sampleRate) {
             sample /= static_cast<float>(enabledVoices);
         }
 
-        sample = _delay.Process(sample);
-        sample = _filter.Process(sample);
+        if (_delay.IsActive()) {
+            sample = _delay.Process(sample);
+        }
+
+        sample = _filters[_currentFilter]->Process(sample);
 
         output[i * 2] = sample; // left
         output[i * 2 + 1] = sample; // right
@@ -86,5 +91,13 @@ void Synth::AdjustVoiceAmount(bool down) {
                 break;
             }
         }
+    }
+}
+
+void Synth::CycleFilter(bool right) {
+    if (right) {
+        _currentFilter = (_currentFilter + 1) % _filters.size();
+    } else {
+        _currentFilter = (_currentFilter - 1 + _filters.size()) % _filters.size();
     }
 }

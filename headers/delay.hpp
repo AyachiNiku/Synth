@@ -8,6 +8,7 @@ class Delay {
 public:
     void Deactivate();
     void Activate();
+    bool IsActive() const;
 
     Delay(float delaySeconds = 0.5f);
 
