@@ -61,16 +61,13 @@ public:
 
     virtual float Process(float input);
 
+    void SwitchState() { _isActive = !_isActive; }
     virtual void SetCutoff(float cutoffHz) = 0;
     virtual void SetQ(float q) = 0;
 
-    float GetCutoff() const;
-    float GetQ() const;
-    bool IsActive() const;
-
-    void Enable();
-    void Disable();
-    void SwitchState();
+    bool IsActive() const { return _isActive; }
+    float GetCutoff() const { return _cutoff; }
+    float GetQ() const { return _q; }
 
 protected:
     virtual void CalculateCoefficients() = 0;

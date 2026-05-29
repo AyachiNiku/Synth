@@ -16,17 +16,24 @@ public:
 
     float Process();
 
-    void NoteOn(); // a note has been pressed, we enter the attack state
-    void NoteOff(); // not a single note is pressed at this point in time, we enter the release state
+    // a note has been pressed, we enter the attack state
+    void NoteOn() { _state = ADSRState::Attack; }
+    // not a single note is pressed at this point in time, we enter the release state
+    void NoteOff() { _state = ADSRState::Release; }
+
 
     // setters
-    void SetAttackTime(float rate);
-    void SetDecayTime(float rate);
-    void SetSustainLevel(float level);
-    void SetReleaseTime(float rate);
+    void SetAttack(float attackTime) { _attackTime = std::max(attackTime, 0.001f); }
+    void SetDecay(float decayTime) { _decayTime = std::max(decayTime, 0.001f); }
+    void SetSustain(float sustainLevel) { _sustainLevel = std::max(sustainLevel, 0.001f); }
+    void SetRelease(float releaseTime) { _releaseTime = releaseTime; }
 
     // getters
-    ADSRState GetState();
+    ADSRState GetState() const { return _state; }
+    float GetAttack() const { return _attackTime; }
+    float GetDecay() const { return _decayTime; }
+    float GetSustain() const { return _sustainLevel; }
+    float GetRelease() const { return _releaseTime; }
 
 private:
     ADSRState _state = ADSRState::Idle;

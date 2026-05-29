@@ -1,8 +1,10 @@
 #pragma once
 
+#include <string>
 #include <cmath>
 
 constexpr float SAMPLE_RATE = 44100.0f;
+constexpr size_t WAVEFORM_TYPE_COUNT = 4;
 
 // used to represent the notes that are being played
 // for convenience, I represent them like so - each note directly equals its midi numbered counterpart

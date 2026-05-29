@@ -1,4 +1,5 @@
 #pragma once
+
 #include "utils.hpp"
 #include "waveform.hpp"
 
@@ -7,11 +8,13 @@ public:
     Oscillator() = default;
 
     float Process();
-    bool IsActive() const;
-    void SetActive(bool active);
-    void SetFrequency(float freq);
-    void SetWaveform(Waveform waveform);
+
+    void SwitchState() { _isActive = !_isActive; }
+    void SetFrequency(float freq) { _frequency = freq; }
     void CycleWaveform(bool right);
+
+    bool IsActive() const { return _isActive; }
+    Waveform& GetWaveform() { return _waveform; }
 
 private:
     Waveform _waveform = Waveform::Sine;

@@ -1,23 +1,5 @@
 #include "../headers/adsr.hpp"
 
-// setters
-
-void ADSR::SetAttackTime(float seconds) {
-    _attackTime = std::max(seconds, 0.001f);
-}
-
-void ADSR::SetDecayTime(float rate) {
-    _decayTime = std::max(rate, 0.001f);
-}
-
-void ADSR::SetReleaseTime(float rate) {
-    _releaseTime = std::max(rate, 0.001f);
-}
-
-void ADSR::SetSustainLevel(float level) {
-    _sustainLevel = level;
-}
-
 // the concept of time and rate (like attackTime/attackRate, decayTime/decayRate, etc.) might seem pretty difficult to grasp,
 // the easiest way is to realize that multiplying any time variable by the sample rate gives us the actual time in seconds
 // so _attackRate = 0.1f - this gives us 0.1 seconds when multiplied by the current sample rate
@@ -56,16 +38,4 @@ float ADSR::Process() {
             break;
     }
     return _amplitude;
-}
-
-ADSRState ADSR::GetState() {
-    return _state;
-}
-
-void ADSR::NoteOn() {
-    _state = ADSRState::Attack;
-}
-
-void ADSR::NoteOff() {
-    _state = ADSRState::Release;
 }

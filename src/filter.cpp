@@ -28,30 +28,6 @@ void Filter::SetQ(float q) {
     CalculateCoefficients();
 }
 
-bool Filter::IsActive() const {
-    return _isActive;
-}
-
-float Filter::GetCutoff() const {
-    return _cutoff;
-}
-
-float Filter::GetQ() const {
-    return _q;
-}
-
-void Filter::Enable() {
-    _isActive = true;
-}
-
-void Filter::Disable() {
-    _isActive = false;
-}
-
-void Filter::SwitchState() {
-    _isActive = !_isActive;
-}
-
 // LPF
 
 void LowPassFilter::CalculateCoefficients() {

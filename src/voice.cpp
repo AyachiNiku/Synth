@@ -1,15 +1,5 @@
 #include "../headers/voice.hpp"
 
-void Voice::CycleWaveform(bool right) {
-    for (auto& osc : _oscillators) {
-        osc.CycleWaveform(right);
-    }
-}
-
-void Voice::CycleWaveform(int oscillatorId, bool right) {
-    _oscillators[oscillatorId].CycleWaveform(right);
-}
-
 // puts together the result signal of all three oscillators
 float Voice::Process() {
     if (!_isActive) return 0.0f;
@@ -51,31 +41,4 @@ void Voice::NoteOn(Note::Id note, float velocity) {
 void Voice::NoteOff(Note::Id note) {
     _isNoteOn = false;
     _adsr.NoteOff();
-}
-
-Note::Id Voice::GetNote() const {
-    return _note;
-}
-
-bool Voice::IsDisabled() const {
-    return _isDisabled;
-}
-
-bool Voice::IsActive() const {
-    return _isActive;
-}
-
-bool Voice::IsNoteOn() const {
-    return _isNoteOn;
-}
-
-void Voice::Disable() {
-    _isNoteOn = false;
-    _isActive = false;
-    _adsr.NoteOff();
-    _isDisabled = true;
-}
-
-void Voice::Enable() {
-    _isDisabled = false;
 }
